@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alice Build Tuner v0.1</title>
+<style>
+:root{
+  --bg:#0b1020;--panel:#121a2d;--panel2:#18223a;--text:#f4f6fb;--muted:#aab4cc;
+  --line:#2a385c;--accent:#8b7cff;--accent2:#b7afff;--good:#45c97a;--warn:#f1b84b;--bad:#ec6b68;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0b1020,#0f1730);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.app{max-width:900px;margin:0 auto;padding:16px 14px 40px}
+h1{font-size:24px;margin:0 0 4px}
+h2{font-size:17px;margin:0 0 10px}
+p{margin:0}
+.sub{color:var(--muted);font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:12px}
+.row{display:flex;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.levelnum{font-size:28px;font-weight:800}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot,.itemBtn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:14px;min-height:82px;padding:8px}
+.slot.active,.itemBtn.active{outline:2px solid var(--accent)}
+.icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#243052;border:1px solid #3a4b76;margin:0 auto 5px;font-weight:800;color:#fff}
+.small{font-size:12px}.tiny{font-size:11px;color:var(--muted)}
+select,button{font:inherit}
+select{width:100%;min-height:46px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:8px;font-size:16px}
+.controls{display:grid;grid-template-columns:1fr;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:10px}
+.stat .v{font-size:21px;font-weight:800}
+.skills{display:grid;gap:8px}
+.skill{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:10px}
+.skill .name{font-weight:750}
+.skill .value{font-size:18px;font-weight:800}
+.picker{display:grid;grid-template-columns:1fr;gap:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.detail{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.primary{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:11px 14px;font-weight:800}
+.secondary{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+.price{font-weight:800}
+.old{color:var(--muted);text-decoration:line-through;margin-right:6px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#253052;color:#dfe4ff;font-size:11px;margin:2px 4px 2px 0}
+.notice{background:#1b2440;border:1px solid #36466d;border-radius:12px;padding:10px;font-size:12px;color:#cbd3e8}
+.bars{display:grid;gap:9px}
+.barRow{display:grid;grid-template-columns:90px 1fr 80px;gap:8px;align-items:center;font-size:13px}
+.track{height:11px;border-radius:999px;background:#27324e;overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#d9534f,#f0ad4e,#f7e463,#7fd36b,#32b96d)}
+.pending{color:var(--muted);font-size:11px;text-align:right}
+.delta{font-size:12px;padding:5px 8px;border-radius:999px;background:#202b49}
+.up{color:#66dc91}.down{color:#ff9f84}
+@media(min-width:680px){
+  .slots{grid-template-columns:repeat(6,1fr)}
+  .controls{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .picker{grid-template-columns:1.2fr .8fr}
+  .grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Alice Build Tuner <span class="tiny">v0.1</span></h1>
+  <p class="sub">Screenshot-verified Alice mechanics + current item data. Tap a slot, preview an item, add/remove it, and watch the numbers change.</p>
+
+  <section class="panel">
+    <div class="row between">
+      <div><h2>Hero level</h2><div class="sub">Moves level-scaled mechanics automatically</div></div>
+      <div class="levelnum" id="levelNum">15</div>
+    </div>
+    <input id="level" type="range" min="1" max="15" value="15">
+    <div class="row between tiny"><span>1</span><span>15</span></div>
+    <div class="notice" style="margin-top:10px">Alice's base HP/DEF growth per level is not shown in the screenshot, so this prototype does not invent it. Level still changes Blood Banquet %HP damage, spell scaling, Holy Crystal scaling, and skill ranks.</div>
+  </section>
+
+  <section class="panel">
+    <div class="row between"><h2>Build</h2><div><span class="tiny">Actual cost</span><div class="price" id="buildCost">0g</div></div></div>
+    <div class="slots" id="slots"></div>
+    <div id="deltas" class="row wrap" style="margin-top:10px"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Emblem & battle spell</h2>
+    <div class="controls">
+      <label><span class="small">Tier 1</span>
+        <select id="t1">
+          <option value="inspire">Inspire — +5% CDR</option>
+          <option value="vitality">Vitality — +225 HP</option>
+          <option value="rupture">Rupture — +5 Magic PEN</option>
+          <option value="firmness">Firmness — +6 Hybrid DEF</option>
+          <option value="agility">Agility — +4% Move Speed</option>
+          <option value="thrill">Thrill — +16 Adaptive Attack</option>
+        </select>
+      </label>
+      <label><span class="small">Tier 2</span>
+        <select id="t2">
+          <option value="bargain">Bargain Hunter — equipment costs 95%</option>
+          <option value="tenacity">Tenacity — +15 Hybrid DEF below 50% HP</option>
+          <option value="festival">Festival of Blood — +6% Spell Vamp</option>
+          <option value="master">Master Assassin — +7% damage when isolated</option>
+        </select>
+      </label>
+      <label><span class="small">Tier 3</span>
+        <select id="t3">
+          <option value="concussive">Concussive Blast</option>
+          <option value="impure">Impure Rage</option>
+          <option value="warcry">War Cry</option>
+        </select>
+      </label>
+      <label><span class="small">Battle spell</span>
+        <select id="spell">
+          <option value="petrify">Petrify</option>
+          <option value="vengeance">Vengeance</option>
+          <option value="aegis">Aegis</option>
+          <option value="execute">Execute</option>
+          <option value="flicker">Flicker</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Live stats</h2>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Skill output</h2>
+    <div class="skills" id="skills"></div>
+  </section>
+
+  <section class="panel">
+    <div class="row between">
+      <div><h2>Choose item</h2><div class="sub">Editing <span id="slotText">Slot 1</span></div></div>
+    </div>
+    <div class="picker">
+      <div class="grid" id="itemGrid"></div>
+      <div class="detail" id="detail"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Universal scoring</h2>
+    <div class="bars">
+      <div class="barRow"><span>Survival</span><div class="track"><div class="fill"></div></div><span class="pending">pending</span></div>
+      <div class="barRow"><span>Pressure</span><div class="track"><div class="fill"></div></div><span class="pending">pending</span></div>
+      <div class="barRow"><span>Burst</span><div class="track"><div class="fill"></div></div><span class="pending">pending</span></div>
+      <div class="barRow"><span>DoT</span><div class="track"><div class="fill"></div></div><span class="pending">pending</span></div>
+      <div class="barRow"><span>TTK</span><div class="track"><div class="fill"></div></div><span class="pending">pending</span></div>
+    </div>
+    <div class="notice" style="margin-top:10px">These bars stay blank until the roster-wide game minimum/maximum ranges and average target profiles are loaded. The app will not fake a 0–100 score.</div>
+  </section>
+</div>
+
+<script>
+(() => {
+const items={
+  magicShoes:{name:"Magic Shoes",abbr:"MS",cost:720,hp:150,cdr:10,msFlat:40,desc:"+150 HP • +10% CDR • +40 Movement Speed"},
+  arcane:{name:"Arcane Boots",abbr:"AB",cost:720,mp:15,pen:10,msFlat:40,desc:"+15 Magic Power • +10 Magic PEN • +40 Movement Speed"},
+  fleeting:{name:"Fleeting Time",abbr:"FT",cost:2050,hp:600,cdr:15,phys:30,desc:"+30 Physical Attack • +600 HP • +15% CDR. Kill/assist reduces current Ultimate cooldown by 30%."},
+  queens:{name:"Queen's Wings",abbr:"QW",cost:2250,hp:750,cdr:10,spellVamp:10,phys:30,desc:"+30 Physical Attack • +750 HP • +10% CDR • +10% Spell Vamp. Below 40% HP: 30% damage reduction for 3s and skill cooldowns -2s. Damage rises as HP is lost."},
+  glowing:{name:"Glowing Wand",abbr:"GW",cost:2150,hp:400,mp:75,msPct:5,desc:"+75 Magic Power • +400 HP • +5% Movement Speed. Scorch: 1% target Max HP magic damage each second for 3s. Lifebane cuts shield/HP regen effects to 60%."},
+  concentrated:{name:"Concentrated Energy",abbr:"CE",cost:2020,hp:400,mp:70,hybridLS:20,desc:"+70 Magic Power • +400 HP • +20% Hybrid Lifesteal. Magic damage grants +5 MP per stack, up to 6; at full stacks +12% Magic Damage for 5s."},
+  iceQueen:{name:"Ice Queen Wand",abbr:"IQ",cost:2040,hp:300,mp:75,spellVamp:10,msPct:7,desc:"+75 Magic Power • +300 HP • +10% Spell Vamp • +7% Movement Speed. Skill damage slows 10% for 2s, stacks up to 3."},
+  divine:{name:"Divine Glaive",abbr:"DG",cost:1970,mp:65,penPct:40,desc:"+65 Magic Power • +40% Magic PEN. Spellbreaker adds 0.1% extra Magic PEN per point of enemy Magic DEF, capped at +20%."},
+  cursed:{name:"Cursed Helmet",abbr:"CH",cost:1910,hp:1200,mdef:20,desc:"+1200 HP • +20 Magic DEF. Burning Soul deals 1.2% of your Total HP as magic damage per second nearby and shreds Hybrid DEF."},
+  genius:{name:"Genius Wand",abbr:"GN",cost:2000,mp:75,pen:10,msPct:5,desc:"+75 Magic Power • +10 Magic PEN • +5% Movement Speed. Magic damage reduces enemy Magic DEF by 3 + 0.3×Hero Level per stack, up to 3 stacks."},
+  holy:{name:"Holy Crystal",abbr:"HC",cost:3000,mp:185,desc:"+185 Magic Power. Mystery adds 21%–35% extra Magic Power, scaling with hero level."}
+};
+let build=["magicShoes","fleeting","queens","glowing","concentrated","iceQueen"];
+let activeSlot=2,selected="queens",previous=null;
+const $=id=>document.getElementById(id);
+const level=()=>+$("level").value;
+
+function tstats(){
+  const s={hp:0,pdef:0,mdef:0,cdr:0,msPct:0,mp:0,pen:0,spellVamp:0};
+  switch($("t1").value){
+    case"inspire":s.cdr=5;break;case"vitality":s.hp=225;break;case"rupture":s.pen=5;break;
+    case"firmness":s.pdef=6;s.mdef=6;break;case"agility":s.msPct=4;break;case"thrill":s.mp=16;break;
+  }
+  if($("t2").value==="festival")s.spellVamp=6;
+  return s;
+}
+function totals(){
+  const s={hp:2452,mp:0,pdef:25,mdef:15,cdr:0,msFlat:0,msPct:0,spellVamp:0,pen:0,penPct:0,hybridLS:0};
+  const t=tstats(); Object.keys(t).forEach(k=>s[k]+=t[k]||0);
+  build.forEach(id=>{if(!id)return; const it=items[id]; Object.keys(s).forEach(k=>s[k]+=it[k]||0)});
+  if(build.includes("holy")) s.mp*=1+(21+(level()-1)*(14/14))/100;
+  s.cdr=Math.min(40,s.cdr);
+  s.move=(240+s.msFlat)*(1+s.msPct/100);
+  s.extraHP=s.hp-2452;
+  return s;
+}
+function price(it){return Math.round(it.cost*($("t2").value==="bargain"?0.95:1))}
+function totalCost(){return build.reduce((n,id)=>n+(id?price(items[id]):0),0)}
+function snap(){const s=totals();return{hp:s.hp,mp:s.mp,cdr:s.cdr,move:s.move,cost:totalCost()}}
+
+function skillRanks(L){
+  let s1=1,s2=1,u=0,points=Math.max(0,L-2);
+  // Ultimate at levels 4/8/12; Doom Waltz first, then Crimson Gleam.
+  for(let heroLv=3;heroLv<=L;heroLv++){
+    if(heroLv===4||heroLv===8||heroLv===12){u++;continue}
+    if(s2<6)s2++; else if(s1<6)s1++;
+  }
+  return{s1:Math.min(s1,6),s2:Math.min(s2,6),u:Math.min(u,3)}
+}
+function icon(id){const it=items[id];return `<div class="icon">${it.abbr}</div>`}
+function renderSlots(){
+  $("slots").innerHTML=build.map((id,i)=>`<button class="slot ${i===activeSlot?"active":""}" data-i="${i}">${id?icon(id):'<div class="icon">+</div>'}<div class="small">${id?items[id].name:"Empty"}</div></button>`).join("");
+  document.querySelectorAll(".slot").forEach(b=>b.onclick=()=>{activeSlot=+b.dataset.i;selected=build[activeSlot]||"magicShoes";render()});
+}
+function renderItems(){
+  $("slotText").textContent="Slot "+(activeSlot+1);
+  $("itemGrid").innerHTML=Object.entries(items).map(([id,it])=>`<button class="itemBtn ${id===selected?"active":""}" data-id="${id}">${icon(id)}<div class="small">${it.name}</div></button>`).join("");
+  document.querySelectorAll(".itemBtn").forEach(b=>b.onclick=()=>{selected=b.dataset.id;renderItems();renderDetail()});
+}
+function renderDetail(){
+  const it=items[selected],equipped=build[activeSlot]===selected,p=price(it);
+  $("detail").innerHTML=`<div class="row between"><div><div class="name" style="font-weight:800">${it.name}</div><div class="tiny">${it.desc}</div></div>${icon(selected)}</div>
+  <div style="margin:12px 0"><span class="price">${p.toLocaleString()}g</span> ${p!==it.cost?`<span class="old">${it.cost.toLocaleString()}g</span><span class="badge">Bargain Hunter</span>`:""}</div>
+  <button id="equip" class="${equipped?"secondary":"primary"}">${equipped?"Remove":"Add to Slot "+(activeSlot+1)}</button>`;
+  $("equip").onclick=()=>{previous=snap();build[activeSlot]=equipped?null:selected;render()};
+}
+function scard(name,v,sub=""){return `<div class="stat"><div class="tiny">${name}</div><div class="v">${v}</div>${sub?`<div class="tiny">${sub}</div>`:""}</div>`}
+function renderStats(){
+  const s=totals();
+  $("stats").innerHTML=[
+    scard("HP",Math.round(s.hp).toLocaleString(),"Extra HP "+Math.round(s.extraHP)),
+    scard("Magic Power",Math.round(s.mp)),
+    scard("Physical DEF",Math.round(s.pdef)),
+    scard("Magic DEF",Math.round(s.mdef)),
+    scard("Cooldown Reduction",s.cdr.toFixed(0)+"%"),
+    scard("Movement Speed",s.move.toFixed(0)),
+    scard("Spell Vamp",s.spellVamp.toFixed(0)+"%"),
+    scard("Magic PEN",Math.round(s.pen)+" flat / "+Math.round(s.penPct)+"%")
+  ].join("");
+  $("buildCost").textContent=totalCost().toLocaleString()+"g";
+}
+function renderSkills(){
+  const s=totals(),L=level(),r=skillRanks(L),cdr=1-s.cdr/100;
+  const s1Base=[100,120,140,160,180,200][r.s1-1];
+  const s2Base=[350,390,430,470,510,550][r.s2-1];
+  const uBase=r.u?[500,600,700][r.u-1]:0;
+  const s1=s1Base+.5*s.mp;
+  const s2=s2Base+1.3*s.mp;
+  const u=r.u?uBase+2*s.mp+.2*s.extraHP:0;
+  const hpPct=.5+(L-1)*(2/14);
+  const banquet=25+.3*s.mp;
+  const heal=10+.03*s.extraHP;
+  const s1cd=[12,11.2,10.4,9.6,8.8,8][r.s1-1]*cdr;
+  const s2cd=4*cdr;
+  const ucd=r.u?[60,55,50][r.u-1]*cdr:null;
+  const card=(n,v,d)=>`<div class="skill"><div class="row between"><div class="name">${n}</div><div class="value">${v}</div></div><div class="tiny">${d}</div></div>`;
+  let html="";
+  html+=card(`Crimson Gleam • Rank ${r.s1}`,Math.round(s1)+" raw magic",`CD ${s1cd.toFixed(1)}s • 50% Spell Vamp ratio`);
+  html+=card(`Doom Waltz • Rank ${r.s2}`,Math.round(s2)+" raw magic",`CD ${s2cd.toFixed(1)}s • Blood Banquet active: adds 300% of Banquet damage and heals the same amount`);
+  html+=card("Crimson Blood Banquet",`${Math.round(banquet)} + ${hpPct.toFixed(2)}% target Max HP`,`Every 0.5s • heals ${Math.round(heal)} HP/tick • +8% Movement Speed while active`);
+  html+=r.u?card(`Throne of Ruin • Rank ${r.u}`,Math.round(u)+" raw magic",`CD ${ucd.toFixed(1)}s • 50% Damage Reduction during 1.5s charge • 1s immobilize`):card("Throne of Ruin","Locked","Unlocks at level 4");
+  let spell="";
+  switch($("spell").value){
+    case"petrify":spell=`${100+15*L} magic damage • 0.8s stun • 0.8s 50% slow`;break;
+    case"vengeance":spell="3s • 35% damage reduction + reflect";break;
+    case"aegis":spell=`${750+90*L} shield for 5s`;break;
+    case"execute":spell=`${100+10*L} + 13% target lost HP true damage`;break;
+    case"flicker":spell=`Blink • then +${5+L} Physical & Magic DEF for 1s`;break;
+  }
+  html+=card("Battle spell",spell,"");
+  $("skills").innerHTML=html;
+}
+function renderDeltas(){
+  if(!previous){$("deltas").innerHTML='<span class="tiny">Swap an item to see exactly what moved.</span>';return}
+  const n=snap(),defs=[["HP","hp"],["MP","mp"],["CDR","cdr"],["Speed","move"],["Cost","cost"]];
+  $("deltas").innerHTML=defs.map(([name,k])=>{const d=Math.round(n[k]-previous[k]);return `<span class="delta ${d>0?"up":d<0?"down":""}">${name} ${d>0?"+":""}${d}</span>`}).join("");
+}
+function render(){
+  $("levelNum").textContent=level();
+  renderSlots();renderItems();renderDetail();renderStats();renderSkills();renderDeltas();
+}
+["level","t1","t2","t3","spell"].forEach(id=>{
+  $(id).addEventListener(id==="level"?"input":"change",()=>{previous=snap();render()})
+});
+render();
+})();
+</script>
+</body>
+</html>
