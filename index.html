@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ML Build Tuner">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070d1a">
 <title>Mobile Legends Build Tuner</title>
 <style>
@@ -320,6 +325,95 @@ body.immersive{
   }
 }
 
+
+/* v5 — actual iPhone Safari landscape layout (~1536×525 usable) */
+html,body{margin:0!important;padding:0!important;width:100%!important;height:100%!important;overflow:hidden!important;background:#040812!important}
+#viewportFit{position:fixed!important;inset:0!important;overflow:hidden!important;width:100%!important;height:100%!important}
+.app{
+  position:absolute!important;left:0;top:0;width:1480px!important;height:510px!important;
+  max-width:none!important;min-height:0!important;padding:5px!important;margin:0!important;overflow:hidden!important;
+  display:grid!important;grid-template-rows:126px 36px 250px 86px!important;gap:4px!important;transform-origin:top left!important
+}
+.top{height:126px!important;gap:4px!important}
+.performance{padding:6px 10px!important}
+.perf-head{font-size:17px!important;line-height:1!important;margin-bottom:4px!important}
+.perf-grid{gap:3px 20px!important}
+.metric{grid-template-columns:76px 1fr 27px!important;gap:5px!important;font-size:11px!important;line-height:1!important}
+.bar{height:8px!important}
+.ttk{padding:6px 8px!important}.ttk-head{margin-bottom:3px!important}.ttk-head .section-title{font-size:15px!important}
+.ttk-cards{gap:5px!important}.ttk-card{padding:5px 4px!important;border-radius:9px!important}
+.ttk-card .small{font-size:10px!important}.ttk-card .time{font-size:19px!important;line-height:1!important;margin:2px 0!important}
+.ttk-card .tiny{font-size:8px!important}.ttk-note{font-size:7px!important;line-height:1!important;margin-top:2px!important}
+.hero-row{
+  height:36px!important;min-height:36px!important;padding:2px 7px!important;gap:5px!important;
+  grid-template-columns:auto auto auto auto auto 1fr!important
+}
+.hero-select{min-height:30px!important;height:30px!important;padding:2px 8px!important;border-radius:9px!important}
+.hero-select strong{font-size:17px!important}.hero-select span{font-size:10px!important}
+.chip{padding:3px 7px!important;font-size:9.5px!important;line-height:1!important}
+.level-wrap{min-width:220px!important;gap:5px!important}.level-wrap input{width:145px!important}.level-num{font-size:14px!important}
+.screen-btn{min-height:29px!important;height:29px!important;padding:2px 7px!important;font-size:9px!important;border-radius:8px!important}
+.mid{height:250px!important;grid-template-columns:500px 1fr!important;gap:4px!important}
+.stats,.skills{padding:5px 6px!important;overflow:hidden!important}
+.stats-head,.skills-head{font-size:14px!important;line-height:1!important;margin:0 0 4px!important}
+.stats-grid{grid-template-columns:repeat(3,1fr)!important;gap:0 12px!important}
+.stat-row{padding:2px 1px!important;font-size:10.5px!important;line-height:1.12!important}
+.note{font-size:7px!important;line-height:1.05!important;margin-top:2px!important}
+.skill-grid{grid-template-columns:repeat(4,1fr)!important;gap:4px!important;height:222px!important}
+.skill{padding:5px!important;border-radius:9px!important;overflow:hidden!important}
+.skill-top{gap:4px!important;margin-bottom:3px!important}.skill-icon{width:38px!important;height:38px!important}
+.skill-title{font-size:13px!important;line-height:1!important}.tag{font-size:7px!important;padding:1px 3px!important}
+.skill-desc{font-size:10px!important;line-height:1.18!important}
+.bottom{
+  height:86px!important;padding:4px 6px!important;gap:5px!important;
+  grid-template-columns:1.45fr .78fr .30fr .65fr!important
+}
+.build-title{margin-bottom:2px!important;gap:5px!important}.build-title .section-title{font-size:13px!important}
+.build-title .tiny{font-size:7px!important}.build-title .chip{font-size:8px!important;padding:2px 5px!important}
+.slots{gap:4px!important}.slot{min-height:54px!important;height:54px!important;padding:2px!important;border-radius:8px!important}
+.slot img{width:38px!important;height:38px!important;margin-bottom:0!important}.slot-name{font-size:7.5px!important;line-height:1!important}
+.emblems{padding:0 6px!important}.emblems .section-title,.spell .section-title{font-size:13px!important}
+.emblem-row{gap:4px!important;margin-top:2px!important}.emblem-btn img,.spell-btn img{width:34px!important;height:34px!important}
+.emblem-label{font-size:7px!important;line-height:1!important;margin-top:1px!important}.spell{padding:0 4px!important}
+.item-detail{padding:4px!important;grid-template-columns:42px 1fr!important;gap:5px!important;border-radius:8px!important;overflow:hidden!important}
+.item-detail img{width:42px!important;height:42px!important}.item-detail h3{font-size:13px!important;line-height:1!important;margin:0 0 2px!important}
+.item-detail p{font-size:7.5px!important;line-height:1.1!important;margin:1px 0!important}.badge{font-size:7px!important;padding:1px 4px!important}
+.delta{font-size:7px!important;line-height:1!important}
+.orientation{display:none!important}
+@media(orientation:portrait){
+  #viewportFit{display:none!important}
+  .orientation{display:block!important;position:fixed;inset:0;padding:40px 20px;background:#07101f;color:#ffe6a2;font-size:16px;text-align:center}
+}
+
+
+/* v6 — automatic standalone / immersive launch */
+html,body{
+  background:#040812!important;
+  overscroll-behavior:none!important;
+  touch-action:manipulation;
+}
+body{
+  padding-top:env(safe-area-inset-top)!important;
+  padding-right:env(safe-area-inset-right)!important;
+  padding-bottom:env(safe-area-inset-bottom)!important;
+  padding-left:env(safe-area-inset-left)!important;
+}
+body.auto-immersive{
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+#viewportFit{
+  inset:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left)!important;
+}
+.screen-btn{display:none!important}
+
 </style>
 </head>
 <body>
@@ -332,7 +426,7 @@ body.immersive{
     <div class="perf-grid" id="metrics"></div>
   </div>
   <div class="panel ttk">
-    <div class="ttk-head"><span class="section-title" style="font-size:18px">◷ Time to Kill</span><span class="tiny muted">v4 • one-screen mode</span></div>
+    <div class="ttk-head"><span class="section-title" style="font-size:18px">◷ Time to Kill</span><span class="tiny muted">v6 • auto immersive</span></div>
     <div class="ttk-cards" id="ttkCards"></div>
     <div class="ttk-note">Target profiles will be replaced by the full-game average / squishy / fighter / tank calibration dataset.</div>
   </div>
@@ -343,7 +437,7 @@ body.immersive{
   <span class="chip">★ Queen of Blood</span>
   <span class="chip">⚔ Tank/Mage</span>
   <span class="chip role2">◉ Charge/Regen</span>
-  <button id="fullScreenBtn" class="screen-btn" type="button" aria-pressed="false">⛶ Full Screen</button>
+  <span id="fullScreenBtn" class="screen-btn" aria-hidden="true"></span>
   <div class="level-wrap"><span class="level-num">Level <span id="levelOut">15</span></span><input id="level" type="range" min="1" max="15" value="15"></div>
 </section>
 
@@ -629,28 +723,15 @@ function renderCost(){$("#buildCost").textContent=money(buildCost())}
 function fitDashboard(){
   const app=document.querySelector(".app");
   if(!app)return;
-  if(window.matchMedia("(orientation: portrait)").matches){
-    app.style.transform="";
-    return;
-  }
-
+  if(window.matchMedia("(orientation: portrait)").matches){app.style.transform="";return}
   const vv=window.visualViewport;
-  const availW=Math.floor(vv ? vv.width : window.innerWidth);
-  const availH=Math.floor(vv ? vv.height : window.innerHeight);
-
-  const baseW=1600, baseH=820;
-  const scale=Math.min(availW/baseW,availH/baseH);
-
+  const availW=Math.floor(vv?vv.width:window.innerWidth);
+  const availH=Math.floor(vv?vv.height:window.innerHeight);
+  const baseW=1480,baseH=510;
+  const scale=Math.min(1.08,Math.min(availW/baseW,availH/baseH));
   app.style.transform=`scale(${scale})`;
-  const usedW=baseW*scale, usedH=baseH*scale;
-  app.style.left=Math.max(0,(availW-usedW)/2)+"px";
-  app.style.top=Math.max(0,(availH-usedH)/2)+"px";
-
-  const frame=document.querySelector("#viewportFit");
-  if(frame){
-    frame.style.width=availW+"px";
-    frame.style.height=availH+"px";
-  }
+  app.style.left=Math.max(0,(availW-baseW*scale)/2)+"px";
+  app.style.top=Math.max(0,(availH-baseH*scale)/2)+"px";
 }
 window.addEventListener("resize",fitDashboard,{passive:true});
 window.addEventListener("orientationchange",()=>setTimeout(fitDashboard,180));
@@ -687,57 +768,36 @@ function openSetup(kind){
  document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{state[kind]=b.dataset.choice;$("#setupModal").classList.remove("open");renderAll()});
 }
 
-async function enterScreenMode(){
-  document.body.classList.add("immersive");
-  const btn=$("#fullScreenBtn");
-  let nativeFull=false;
+
+
+
+
+
+
+function isStandaloneMode(){
+  return window.matchMedia("(display-mode: standalone)").matches ||
+         window.navigator.standalone === true;
+}
+function autoImmersiveLaunch(){
+  document.body.classList.add("auto-immersive","immersive");
+  // Browsers that permit automatic fullscreen may accept this, while iPhone Safari will
+  // simply ignore it; standalone Home Screen launch already hides Safari chrome.
   try{
     const root=document.documentElement;
-    if(root.requestFullscreen){
-      await root.requestFullscreen();
-      nativeFull=true;
-    }else if(root.webkitRequestFullscreen){
-      root.webkitRequestFullscreen();
-      nativeFull=true;
-    }
-  }catch(e){
-    // iPhone Safari may reject arbitrary page fullscreen; immersive fit still works.
-  }
-  btn.classList.add("active");
-  btn.setAttribute("aria-pressed","true");
-  btn.textContent="↙ Exit Full Screen";
-  setTimeout(fitDashboard,80);
-}
-async function exitScreenMode(){
-  try{
-    if(document.fullscreenElement && document.exitFullscreen){
-      await document.exitFullscreen();
-    }else if(document.webkitFullscreenElement && document.webkitExitFullscreen){
-      document.webkitExitFullscreen();
-    }
+    const p=root.requestFullscreen ? root.requestFullscreen({navigationUI:"hide"}) :
+            root.webkitRequestFullscreen ? root.webkitRequestFullscreen() : null;
+    if(p && typeof p.catch==="function")p.catch(()=>{});
   }catch(e){}
-  document.body.classList.remove("immersive");
-  const btn=$("#fullScreenBtn");
-  btn.classList.remove("active");
-  btn.setAttribute("aria-pressed","false");
-  btn.textContent="⛶ Full Screen";
-  setTimeout(fitDashboard,80);
+  setTimeout(fitDashboard,30);
+  setTimeout(fitDashboard,180);
+  setTimeout(fitDashboard,500);
 }
-$("#fullScreenBtn").addEventListener("click",()=>{
-  const active=document.body.classList.contains("immersive") || document.fullscreenElement || document.webkitFullscreenElement;
-  active ? exitScreenMode() : enterScreenMode();
-});
-document.addEventListener("fullscreenchange",()=>{
-  if(!document.fullscreenElement && document.body.classList.contains("immersive")){
-    // Native fullscreen exited via OS gesture; keep the app in fit-screen mode.
-    setTimeout(fitDashboard,60);
-  }
-});
 
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$("#"+b.dataset.close).classList.remove("open"));
 $("#level").addEventListener("input",e=>{state.level=+e.target.value;renderAll()});
 $("#heroButton").onclick=()=>{alert("Alice is the first wired hero. This selector is ready for the full roster once each hero dataset is loaded.")};
 renderAll();
+autoImmersiveLaunch();
 setTimeout(fitDashboard,60);
 })();
 </script>
